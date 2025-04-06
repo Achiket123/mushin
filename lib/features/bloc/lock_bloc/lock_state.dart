@@ -8,9 +8,9 @@ final class LockInitial extends LockState {}
 class LockLoading extends LockState {}
 
 final class LockLoaded extends LockState {
-  final bool isLocked;
+  final List<String> package;
 
-  LockLoaded(this.isLocked);
+  LockLoaded(this.package);
 }
 
 final class LockError extends LockState {

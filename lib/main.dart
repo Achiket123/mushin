@@ -20,8 +20,30 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  static const platform = MethodChannel('lock_app_service');
+  Widget screen = HomePage();
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () async {
+      final String? data = await platform.invokeMethod<String?>("argument");
+      debugPrint("Argument: $data");
+      if (data != null) {
+        screen = CameraPage(package: data);
+      } else {
+        screen = HomePage();
+      }
+      setState(() {});
+    });
+  }
 
   // This widget is the root of your application.
   @override
@@ -46,7 +68,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
-        home: const HomePage(),
+        home: screen,
       ),
     );
   }

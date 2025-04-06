@@ -1,27 +1,34 @@
 import 'dart:io';
 
+import 'package:control/features/pages/home_page.dart';
 import 'package:control/features/service/api_service.dart';
 import 'package:control/features/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
+import 'package:control/features/bloc/lock_bloc/lock_bloc.dart' as lb;
 
 late List<CameraDescription> cameras;
 
 class CameraPage extends StatefulWidget {
-  const CameraPage({super.key});
+  const CameraPage({super.key, required this.package});
+  final String package;
 
   @override
   State<CameraPage> createState() => _CameraPageState();
 }
 
 class _CameraPageState extends State<CameraPage> {
+  static const platform = MethodChannel('lock_app_service');
   CameraController? controller;
   XFile? imageFile;
   bool isLoading = false;
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration.zero, () async {
+      await platform.invokeMethod<String?>("argument-delete");
+    });
     controller = CameraController(cameras[0], ResolutionPreset.max);
     controller!
         .initialize()
@@ -98,15 +105,13 @@ class _CameraPageState extends State<CameraPage> {
                     showDialog(
                       context: context,
                       builder:
-                          (context) => Dialog(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(10),
-                                  margin: EdgeInsets.all(20),
-                                  height: 200,
-                                  child: Center(
+                          (context) => SizedBox(
+                            height: 200,
+                            child: Dialog(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Center(
                                     child: Text(
                                       data
                                           ? "We Can Confirm That You are Outside You can open the app"
@@ -114,19 +119,24 @@ class _CameraPageState extends State<CameraPage> {
                                       style: TextStyle(fontSize: 24),
                                     ),
                                   ),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context, data);
-                                    Navigator.pop(context, data);
-
-                                    setState(() {
-                                      imageFile = null;
-                                    });
-                                  },
-                                  child: Text("OK"),
-                                ),
-                              ],
+                                  TextButton(
+                                    onPressed: () {
+                                      lb.LockBloc().add(
+                                        lb.LockAppEvent(widget.package),
+                                      );
+                                      Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                          builder: (context) => HomePage(),
+                                        ),
+                                      );
+                                      platform.invokeMethod("open-app", {
+                                        "package": widget.package,
+                                      });
+                                    },
+                                    child: Text("OK"),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                     );

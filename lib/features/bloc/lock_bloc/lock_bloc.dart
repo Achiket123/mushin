@@ -14,12 +14,9 @@ class LockBloc extends Bloc<LockEvent, LockState> {
     on<LockAppEvent>((event, emit) async {
       // TODO: implement event handler
       emit(LockLoading());
-      final value = await LockAppService.instance.lockApp(event.packageName);
-      if (value == null) {
-        emit(LockError("Failed to lock app"));
-        return;
-      }
-
+      final List<String> value = await LockAppService.instance.lockApp(
+        event.packageName,
+      );
       emit(LockLoaded(value));
     });
   }

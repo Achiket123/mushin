@@ -9,29 +9,22 @@ class LockAppService {
   MethodChannel channel = const MethodChannel('lock_app_service');
   Future lockApp(String appList) async {
     try {
-      final bool? isLocked = await channel.invokeMethod<bool?>(
-        "toggleAppLock",
-        {"targetPackage": appList},
-      );
-      debugPrint("isLocked: $isLocked");
-      if (isLocked == null) {
+      final List packages =
+          await channel.invokeMethod<List>("toggleAppLock", {
+            "targetPackage": appList,
+          }) ??
+          [];
+
+      if (packages == null) {
         debugPrint("isLocked is null");
-        return false;
+        return [];
       }
-      if (isLocked) {
-        final box = Hive.box("cacheBox");
-        if (box.values.contains(appList)) {
-          final data = box.values.where((e) => !(e == appList)).toList();
-          await box.clear();
-          box.addAll(data);
-          return isLocked;
-        } else
-          box.add(appList);
-        debugPrint("App is locked");
-      } else {
-        debugPrint("App is unlocked");
-      }
-      return isLocked;
+      final data = packages.map<String>((e) => e.toString()).toList();
+      final box = Hive.box("cacheBox");
+
+      await box.clear();
+      box.addAll(data);
+      return data;
     } catch (e) {
       debugPrint("Error $e");
       throw Error();

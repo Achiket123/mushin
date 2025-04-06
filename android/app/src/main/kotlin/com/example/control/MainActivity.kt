@@ -38,6 +38,19 @@ class MainActivity : FlutterActivity() {
                     
                         getLockStatus( result)
                     
+                } 
+                "argument"->{
+                    val sharedPreferences = getSharedPreferences("LockScreenPrefs", Context.MODE_PRIVATE)
+                    val editor = sharedPreferences.edit()
+                    val lockedApps = sharedPreferences.getString("argument", null)
+                    result.success(lockedApps)
+                }
+                "argument-delete"->{
+                     val sharedPreferences = getSharedPreferences("LockScreenPrefs", Context.MODE_PRIVATE)
+                    val editor = sharedPreferences.edit()
+                    editor.remove("argument")
+                    editor.apply()
+                    result.success(true)
                 }
                 "openAccessibilitySettings"->{
                     val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
@@ -48,6 +61,22 @@ class MainActivity : FlutterActivity() {
                 "isAccessibilityEnabled" -> {
                     val enabled = isAccessibilityEnabled()
                     result.success(enabled)
+                }
+                "open-app"->{
+                    val packageName = call.argument<String>("package")
+                    if (packageName != null) {
+                        val intent = packageManager.getLaunchIntentForPackage(packageName)
+                        if (intent != null) {
+                            startActivity(intent)
+                            result.success(null)
+                        } else {
+                            result.error("APP_NOT_FOUND", "App not found: $packageName", null)
+                        }
+                    } else {
+                        result.error("INVALID_PACKAGE", "Package name not provided", null)
+                    }
+
+
                 }
                 else -> result.notImplemented()
             }
@@ -80,7 +109,7 @@ class MainActivity : FlutterActivity() {
         startService(intent)
 
         println("  Locked Apps: $lockedApps")
-        result.success(!isLocked)
+        result.success( lockedApps.toList()) // Return the updated list of locked apps to Flutter
     } catch (e: Exception) {
         result.error("TOGGLE_FAILED", "Failed to toggle lock", e.message)
     }
@@ -114,15 +143,12 @@ class MainActivity : FlutterActivity() {
         try {
             // Retrieve locked apps from SharedPreferences
             val sharedPreferences = getSharedPreferences("AppLockPrefs", Context.MODE_PRIVATE)
-            val lockedAppsJson = sharedPreferences.getString("locked_apps", "[]")
-            val gson = com.google.gson.Gson()
-            val typeToken = object : com.google.gson.reflect.TypeToken<List<String>>() {}.type
-            val lockedApps: List<String> = gson.fromJson(lockedAppsJson, typeToken) ?: emptyList()
- 
-            println("Error retrieving lock status: ${lockedApps}");
+            val editor = sharedPreferences.edit()
+            val lockedApps = sharedPreferences.getStringSet("locked_apps", emptySet())?.toMutableSet() ?: mutableSetOf()
+            
 
-            // Return the result to Flutter
-            result.success(lockedApps)
+            // Convert the set to a list and return the result to Flutter
+            result.success(lockedApps.toList())
         } catch (e: Exception) {
             println("Error retrieving lock status: ${e.message}");
             result.error("ERROR", "Failed to get lock status", e.localizedMessage)

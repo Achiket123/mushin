@@ -1,0 +1,5 @@
+<resources>
+    <!-- Add these strings to your existing strings.xml -->
+    <string name="accessibility_service_description">Monitors app usage for control features</string>
+    <string name="app_blocker_description">Blocks access to selected apps based on your settings</string>
+</resources>

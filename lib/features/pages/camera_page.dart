@@ -23,6 +23,13 @@ class _CameraPageState extends State<CameraPage> {
   CameraController? controller;
   XFile? imageFile;
   bool isLoading = false;
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller!.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -50,12 +57,6 @@ class _CameraPageState extends State<CameraPage> {
             }
           }
         });
-  }
-
-  @override
-  void dispose() {
-    controller!.dispose();
-    super.dispose();
   }
 
   @override
@@ -124,14 +125,11 @@ class _CameraPageState extends State<CameraPage> {
                                       lb.LockBloc().add(
                                         lb.LockAppEvent(widget.package),
                                       );
-                                      Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                          builder: (context) => HomePage(),
-                                        ),
-                                      );
+
                                       platform.invokeMethod("open-app", {
                                         "package": widget.package,
                                       });
+                                      exit(0);
                                     },
                                     child: Text("OK"),
                                   ),

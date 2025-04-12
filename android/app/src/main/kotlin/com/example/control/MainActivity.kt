@@ -39,6 +39,28 @@ class MainActivity : FlutterActivity() {
                         getLockStatus( result)
                     
                 } 
+                "toggleAppLockTimer"->{
+                   val packages = call.argument<String>("targetPackage")
+val duration = call.argument<Long>("duration") 
+
+val sharedPreferences = getSharedPreferences("AppLockPrefs", Context.MODE_PRIVATE)
+val editor = sharedPreferences.edit()
+
+
+val existingSet = sharedPreferences.getStringSet("locked_apps", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+existingSet.add(packages ?: "")
+editor.putStringSet("locked_apps", existingSet)
+
+
+editor.putLong("lock_until_$packages", duration ?: 0L)
+editor.apply()
+
+if (packages != null && duration != null) {
+    println("Locked package: $packages")
+    println("Lock until (ms): $duration")
+}
+
+                }
                 "argument"->{
                     val sharedPreferences = getSharedPreferences("LockScreenPrefs", Context.MODE_PRIVATE)
                     val editor = sharedPreferences.edit()
@@ -92,24 +114,24 @@ class MainActivity : FlutterActivity() {
         val isLocked = lockedApps.contains(targetPackage)
 
         if (isLocked) {
-            // Unlock the app (remove from locked list)
+            
             lockedApps.remove(targetPackage)
         } else {
-            // Lock the app (add to locked list)
+            
             lockedApps.add(targetPackage)
         }
 
-        // Save updated locked apps
+        
         editor.putStringSet("locked_apps", lockedApps)
         editor.apply()
 
-        // Restart AppBlockerService to apply changes
+        
         val intent = Intent(this, AppBlockerService::class.java)
         stopService(intent)
         startService(intent)
 
         println("  Locked Apps: $lockedApps")
-        result.success( lockedApps.toList()) // Return the updated list of locked apps to Flutter
+        result.success( lockedApps.toList()) 
     } catch (e: Exception) {
         result.error("TOGGLE_FAILED", "Failed to toggle lock", e.message)
     }
@@ -124,7 +146,7 @@ class MainActivity : FlutterActivity() {
         
         if (!enabled) return false
         
-        // Check if our specific service is enabled
+        
         val serviceString = Settings.Secure.getString(
             contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
@@ -141,13 +163,13 @@ class MainActivity : FlutterActivity() {
     
     private fun getLockStatus(  result: MethodChannel.Result) {
         try {
-            // Retrieve locked apps from SharedPreferences
+            
             val sharedPreferences = getSharedPreferences("AppLockPrefs", Context.MODE_PRIVATE)
             val editor = sharedPreferences.edit()
             val lockedApps = sharedPreferences.getStringSet("locked_apps", emptySet())?.toMutableSet() ?: mutableSetOf()
             
 
-            // Convert the set to a list and return the result to Flutter
+            
             result.success(lockedApps.toList())
         } catch (e: Exception) {
             println("Error retrieving lock status: ${e.message}");

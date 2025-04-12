@@ -16,39 +16,51 @@ class AppBlockerService : AccessibilityService() {
         }
 
         try {
-            val packageName = event.packageName?.toString() ?: return
+    val packageName = event.packageName?.toString() ?: return
 
-            // ✅ Skip your own app to avoid infinite loop and crash
-            if (packageName == applicationContext.packageName) {
-                Log.d(TAG, "Ignoring event from own app")
-                return
+    if (packageName == applicationContext.packageName) {
+        Log.d(TAG, "Ignoring event from own app")
+        return
+    }
+
+    val sharedPreferences = getSharedPreferences("AppLockPrefs", Context.MODE_PRIVATE)
+    val lockedApps = sharedPreferences.getStringSet("locked_apps", emptySet()) ?: emptySet()
+
+    if (packageName in lockedApps) {
+        val lockUntilKey = "lock_until_$packageName"
+        val lockUntilTime = sharedPreferences.getLong(lockUntilKey, -1L)
+        val currentTime = System.currentTimeMillis()
+
+        if (lockUntilTime == -1L || currentTime < lockUntilTime) {
+            // Block app if:
+            // A) No time set (always lock), OR
+            // B) Lock time is in future
+
+            Log.i(TAG, "Blocking app: $packageName (lockUntil=${if (lockUntilTime == -1L) "not set" else lockUntilTime})")
+
+            val intent = Intent(applicationContext, LockScreenActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+                putExtra("package", packageName)
             }
-
-            // ✅ Get locked apps list from SharedPreferences
-            val sharedPreferences = getSharedPreferences("AppLockPrefs", Context.MODE_PRIVATE)
-            val lockedApps = sharedPreferences.getStringSet("locked_apps", emptySet()) ?: emptySet()
-
-            Log.d(TAG, "Accessibility Event for package: $packageName")
-            Log.d(TAG, "Locked Apps List: $lockedApps")
-
-            // ✅ Check if current app is locked
-            if (packageName in lockedApps) {
-                Log.i(TAG, "Blocked app detected: $packageName")
-
-                // ✅ Launch your own app with info
-                val intent = Intent(applicationContext, LockScreenActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                    Intent.FLAG_ACTIVITY_SINGLE_TOP
-                 
-                }
-                intent.putExtra("package", packageName)
-                applicationContext.startActivity(intent)
+            applicationContext.startActivity(intent)
+        } else {
+            // Optional: Clean up expired lock
+            Log.i(TAG, "Lock expired for $packageName, removing from locked list")
+            val newSet = lockedApps.toMutableSet()
+            newSet.remove(packageName)
+            sharedPreferences.edit().apply {
+                putStringSet("locked_apps", newSet)
+                remove(lockUntilKey) // remove lock time key
+                apply()
             }
-
-        } catch (e: Exception) {
-            Log.e(TAG, "Error processing accessibility event: ${e.message}", e)
         }
+    }
+
+} catch (e: Exception) {
+    Log.e(TAG, "Error processing accessibility event: ${e.message}", e)
+}
     }
 
     override fun onInterrupt() {

@@ -1,51 +1,99 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:control/features/bloc/lock_bloc/lock_bloc.dart';
 
 class TimerPage extends StatefulWidget {
+  final String packageName;
+  TimerPage({super.key, required this.packageName});
+
   @override
   _TimerPageState createState() => _TimerPageState();
 }
 
 class _TimerPageState extends State<TimerPage> {
-  Duration _selectedTime = Duration(hours: 0, minutes: 0);
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
 
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
+  Future<void> _selectDateTime(BuildContext context) async {
+    // 1. Pick Date
+    final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialTime: TimeOfDay(
-        hour: _selectedTime.inHours,
-        minute: _selectedTime.inMinutes % 60,
-      ),
+      initialDate: DateTime.now().add(Duration(minutes: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(Duration(days: 365)),
     );
-    if (picked != null) {
-      setState(() {
-        _selectedTime = Duration(hours: picked.hour, minutes: picked.minute);
-      });
+
+    if (pickedDate != null) {
+      // 2. Pick Time
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          _selectedDate = pickedDate;
+          _selectedTime = pickedTime;
+        });
+      }
     }
+  }
+
+  String _formattedDateTime() {
+    if (_selectedDate == null || _selectedTime == null) return '--:--';
+    final dt = DateTime(
+      _selectedDate!.year,
+      _selectedDate!.month,
+      _selectedDate!.day,
+      _selectedTime!.hour,
+      _selectedTime!.minute,
+    );
+    return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} '
+        '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text('Set Lock Timer')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '${_selectedTime.inHours.toString().padLeft(2, '0')}:${(_selectedTime.inMinutes % 60).toString().padLeft(2, '0')}',
-              style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+              _formattedDateTime(),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: () => _selectTime(context),
-                  child: Text('Select Time'),
+                  onPressed: () => _selectDateTime(context),
+                  child: Text('Select Date & Time'),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    if (_selectedDate != null && _selectedTime != null) {
+                      final selectedDateTime = DateTime(
+                        _selectedDate!.year,
+                        _selectedDate!.month,
+                        _selectedDate!.day,
+                        _selectedTime!.hour,
+                        _selectedTime!.minute,
+                      );
+                      context.read<LockBloc>().add(
+                        LockTimerEvent(widget.packageName, selectedDateTime),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please select date and time")),
+                      );
+                    }
+                    debugPrint("Hello");
+                    Navigator.of(context).pop();
+                    SystemNavigator.pop();
                   },
                   child: Text("OK"),
                 ),

@@ -30,4 +30,28 @@ class LockAppService {
       throw Error();
     }
   }
+
+  Future lockAppTimer(String applist, DateTime duration) async {
+    try {
+      final List packages =
+          await channel.invokeMethod<List>("toggleAppLockTimer", {
+            "targetPackage": applist,
+            "duration": duration.millisecondsSinceEpoch,
+          }) ??
+          [];
+      if (packages == null) {
+        debugPrint("isLocked is null");
+        return [];
+      }
+      final data = packages.map<String>((e) => e.toString()).toList();
+      final box = Hive.box("cacheBox");
+
+      await box.clear();
+      box.addAll(data);
+      return data;
+    } catch (e) {
+      debugPrint("Error $e");
+      throw Error();
+    }
+  }
 }

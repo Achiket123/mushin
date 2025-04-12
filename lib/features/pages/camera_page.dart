@@ -106,9 +106,9 @@ class _CameraPageState extends State<CameraPage> {
                     showDialog(
                       context: context,
                       builder:
-                          (context) => SizedBox(
-                            height: 200,
-                            child: Dialog(
+                          (context) => Dialog(
+                            child: SizedBox(
+                              height: 200,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -122,14 +122,21 @@ class _CameraPageState extends State<CameraPage> {
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      lb.LockBloc().add(
-                                        lb.LockAppEvent(widget.package),
-                                      );
+                                      if (data) {
+                                        lb.LockBloc().add(
+                                          lb.LockAppEvent(widget.package),
+                                        );
 
-                                      platform.invokeMethod("open-app", {
-                                        "package": widget.package,
-                                      });
-                                      exit(0);
+                                        platform.invokeMethod("open-app", {
+                                          "package": widget.package,
+                                        });
+                                        SystemNavigator.pop();
+                                      }
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => HomePage(),
+                                        ),
+                                      );
                                     },
                                     child: Text("OK"),
                                   ),

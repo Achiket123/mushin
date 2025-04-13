@@ -49,6 +49,20 @@ To use Gemini API for image verification, create a .env file in the root of your
 ```.env
 API_KEY=your_gemini_api_key_here
 ```
+## Screenshots
+### 📸 Screenshots
+
+#### Lock Screen
+<img src="assets/ss-2.jpg" alt="App Selection" width="300" height="600">
+
+#### App Selection
+<img src="assets/ss-1.jpg" alt="App Selection" width="300" height="600">
+
+#### Greenery Submission
+<img src="assets/ss-3.jpg" alt="Greenery Submission" width="300" height="600">
+<!-- 
+#### Timer Unlock
+![Timer Unlock](https://via.placeholder.com/300x600?text=Timer+Unlock) -->
 
 🔐 Android Permissions Required
 Add these permissions to your AndroidManifest.xml:

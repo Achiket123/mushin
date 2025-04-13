@@ -153,7 +153,13 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 217, 217, 217),
+                              gradient: RadialGradient(
+                                colors: [
+                                  Color.fromARGB(255, 43, 43, 43),
+                                  Color.fromARGB(255, 140, 140, 140),
+                                  Color.fromARGB(255, 77, 77, 77),
+                                ],
+                              ),
                               borderRadius: BorderRadius.circular(10),
                             ),
 
@@ -219,18 +225,22 @@ class _HomePageState extends State<HomePage> {
                                                           BorderRadius.circular(
                                                             12,
                                                           ),
-                                                      border: Border.all(
-                                                        color:
-                                                            [
-                                                              Colors.red,
-                                                              Colors.blue,
-                                                              Colors.green,
-                                                              Colors.yellow,
-                                                              Colors.orange,
-                                                            ][data.indexOf(t) %
-                                                                5],
-                                                        width: 5,
-                                                      ),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          blurRadius: 10,
+                                                          color:
+                                                              [
+                                                                Colors.red,
+                                                                Colors.blue,
+                                                                Colors.green,
+                                                                Colors.yellow,
+                                                                Colors.orange,
+                                                              ][data.indexOf(
+                                                                    t,
+                                                                  ) %
+                                                                  5],
+                                                        ),
+                                                      ],
                                                     ),
                                                     width: 50,
                                                     height: 50,
@@ -556,6 +566,8 @@ class _HomePageState extends State<HomePage> {
                           } else if (state is GetAppLoading) {
                             return Text("We are fetching your apps...");
                           }
+                          if (state is GetAppError)
+                            debugPrint("Error ${state.error}");
                           return Container(child: Text("Error"));
                         },
                       ),
@@ -580,6 +592,12 @@ class _HomePageState extends State<HomePage> {
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
               ),
               onPressed: () async {
+                if (tempPackages.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Please select atleast an app")),
+                  );
+                  return;
+                }
                 if (selectedMethod == 0) {
                   for (var i in tempPackages) {
                     await LockAppService.instance.lockApp(i);
@@ -587,14 +605,13 @@ class _HomePageState extends State<HomePage> {
                   SystemNavigator.pop();
                   return;
                 } else {
-                  // TODO: MAKE IT CORRECT
                   showDialog(
                     context: context,
                     builder:
                         (context) => Dialog(
                           child: Container(
                             height: height * 0.8,
-                            child: TimerPage(packageName: tempPackages.first),
+                            child: TimerPage(packageName: tempPackages),
                           ),
                         ),
                   );

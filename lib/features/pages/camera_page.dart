@@ -81,11 +81,11 @@ class _CameraPageState extends State<CameraPage> {
                   width: width * 1,
                   height: height * 0.7,
                   child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
                     child:
                         imageFile != null
                             ? Image.file(File(imageFile!.path))
                             : CameraPreview(controller!),
-                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
@@ -107,20 +107,53 @@ class _CameraPageState extends State<CameraPage> {
                       context: context,
                       builder:
                           (context) => Dialog(
-                            child: SizedBox(
-                              height: 200,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            backgroundColor: Colors.white,
+                            child: Container(
+                              height: 400,
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: Colors.white,
+                              ),
+
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Center(
-                                    child: Text(
-                                      data
-                                          ? "We Can Confirm That You are Outside You can open the app"
-                                          : "We are not seeing any greenery please go outside",
-                                      style: TextStyle(fontSize: 24),
+                                  Icon(
+                                    data
+                                        ? Icons.verified_outlined
+                                        : Icons.warning_amber_outlined,
+                                    size: 48,
+                                    color: data ? Colors.green : Colors.red,
+                                  ),
+
+                                  Text(
+                                    data
+                                        ? "We can confirm that you are outside.\nYou can now open the app."
+                                        : "No greenery detected.\nPlease go outside and try again.",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black87,
                                     ),
                                   ),
-                                  TextButton(
+                                  const SizedBox(height: 24),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 32,
+                                        vertical: 12,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      backgroundColor:
+                                          data ? Colors.green : Colors.grey,
+                                    ),
                                     onPressed: () {
                                       if (data) {
                                         lb.LockBloc().add(
@@ -132,13 +165,20 @@ class _CameraPageState extends State<CameraPage> {
                                         });
                                         SystemNavigator.pop();
                                       }
+
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (context) => HomePage(),
                                         ),
                                       );
                                     },
-                                    child: Text("OK"),
+                                    child: Text(
+                                      "OK",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),

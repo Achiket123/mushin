@@ -16,7 +16,7 @@ class ShowAppService {
     try {
       List<AppInfo>? appList =
           (await InstalledApps.getInstalledApps(true, true) ?? []).where((e) {
-            if (e.name == 'control') return false;
+            if (e.name == 'Mushin') return false;
             if (e.packageName.contains("youtube"))
               return true;
             else if (e.packageName.contains("instagram"))
@@ -26,7 +26,10 @@ class ShowAppService {
             else
               return e.packageName.contains("com.android.") ? false : true;
           }).toList();
-      appList.sort((a, b) => a.name!.compareTo(b.name!));
+      debugPrint("$appList");
+      appList.isNotEmpty
+          ? appList.sort((a, b) => a.name!.compareTo(b.name!))
+          : [];
       return appList;
     } catch (e) {
       throw Exception("Unable to get app list: $e");

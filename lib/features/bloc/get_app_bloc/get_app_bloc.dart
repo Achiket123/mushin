@@ -39,10 +39,7 @@ class GetAppBloc extends Bloc<GetAppEvent, GetAppState> {
           emit(GetAppError("Failed to load apps"));
           return;
         }
-        if (data.isEmpty) {
-          emit(GetAppError("No apps found"));
-          return;
-        }
+
         emit(GetAppLoaded(data, commonApps));
         debugPrint("Apps loaded: ${data.length}");
       } catch (e) {

@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:control/features/bloc/lock_bloc/lock_bloc.dart';
 
 class TimerPage extends StatefulWidget {
-  final String packageName;
+  final List<String> packageName;
   TimerPage({super.key, required this.packageName});
 
   @override
@@ -83,9 +83,10 @@ class _TimerPageState extends State<TimerPage> {
                         _selectedTime!.hour,
                         _selectedTime!.minute,
                       );
-                      context.read<LockBloc>().add(
-                        LockTimerEvent(widget.packageName, selectedDateTime),
-                      );
+                      for (var i in widget.packageName)
+                        context.read<LockBloc>().add(
+                          LockTimerEvent(i, selectedDateTime),
+                        );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("Please select date and time")),

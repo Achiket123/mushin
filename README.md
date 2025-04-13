@@ -1,66 +1,110 @@
-# Mushin
+# 🌿 Mushin
 
-Mushin is an innovative mobile app designed to help users improve their focus and productivity. It locks chosen apps on the device and allows access only after completing a task that promotes well-being. The app's main features include:
+**Mushin** is a productivity-focused mobile application that promotes digital wellness by controlling access to distracting apps. To unlock a selected app, users must either submit a picture of **greenery** (to promote mindfulness) or wait for a **preset timer** to expire.
 
-- **App Locking**: Prevents access to selected apps by locking them.
-- **Greenery Verification**: Unlocks apps only after the user submits a picture of greenery, promoting a calming and focused environment.
-- **Timer Functionality**: Allows users to set a timer, enabling app access after a specific duration.
-- **Accessibility Features**: Built using Kotlin for advanced accessibility features that can detect and close the app if it is found in shared preferences.
+This project combines **Flutter** for the frontend with **Kotlin** for native Android functionality, particularly leveraging **Accessibility Services** to monitor and block selected apps in real time.
 
-## Features
+---
 
-- **App Lock**: Lock any app chosen by the user, ensuring that distractions are kept at bay.
-- **Greenery Verification**: Users must submit a picture of greenery, such as plants or trees, to verify that they have engaged with nature before accessing the app.
-- **Timer Lock**: Users can specify a timer to allow app access after a predefined period.
-- **Shared Preferences Integration**: The app keeps track of locked apps using shared preferences, providing a smooth and user-friendly experience.
+## 🔒 Key Features
 
-## How It Works
+- ✅ **App Locking**: Block access to specific apps using accessibility services.
+- 🌿 **Greenery Verification**: Unlock the app only after submitting an image of nature (verified via AI using Gemini API).
+- ⏱️ **Timer Unlocking**: Set a countdown timer after which the locked app is unlocked automatically.
+- 📲 **Native Android Integration**: Kotlin code handles app monitoring and detection via accessibility features.
+- 💾 **Persistent Locking**: Locked apps are stored using shared preferences.
+- 🔐 **Secure Image Recognition**: Uses Gemini API for verifying submitted greenery images.
 
-1. **Locking Apps**: The user selects an app to lock through the app's UI. The app will monitor the chosen app and close it if it's accessed.
-2. **Greenery Submission**: To unlock the app, the user must submit a photo of greenery. The photo is verified using an image recognition model to ensure it matches the expected criteria (greenery).
-3. **Timer Functionality**: Users can set a timer for automatic unlocking after a defined time period.
-4. **Accessibility Features**: Implemented using Kotlin, the app leverages Android's accessibility services to detect when the chosen app is on top of the screen and automatically close it. This ensures the locked app cannot be accessed until the user performs the required tasks.
+---
 
-## Installation
+## 🧠 How It Works
 
-### Requirements
+1. **App Selection**: Users choose which apps to lock.
+2. **Lock Enforcement**: When a locked app is launched, Mushin intercepts it via accessibility services and redirects to a custom lock screen.
+3. **Unlock Options**:
+   - **Greenery Submission**: Upload a photo containing greenery.
+   - **Timer**: Wait until the countdown expires.
+4. **AI Verification**: The submitted image is processed using **Google’s Gemini API** to verify it contains greenery before unlocking the app.
 
-- Flutter 3.x or higher
-- Android device with Kotlin support
-- Android Studio or Visual Studio Code
+---
 
-### Steps to Install
+## ⚙️ Installation Guide
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Achiket123/mushin
-    #Navigate to the project directory:
-   cd mushin
-   #Install dependencies:
-   flutter pub get
-   #Run the app on an Android device or emulator:
-   flutter run
+### 📋 Prerequisites
 
-### Permissions
-System Alert Window: Required to display the lock screen and monitor the top app.
+- Flutter SDK (3.x or above)
+- Android Studio or VS Code
+- Android device (API level 21+)
+- [Google Gemini API Key](https://makersuite.google.com/app/apikey)
 
-Package Usage Stats: Used to monitor which apps are being used and lock/unlock them accordingly.
+### 📁 Clone and Setup
 
-Internet: Needed for any potential online features or future integrations.
+```bash
+git clone git@github.com:Achiket123/mushin.git
+cd mushin
+flutter pub get
+```
+## 🔐 Set Up .env File
+To use Gemini API for image verification, create a .env file in the root of your project:
+```.env
+API_KEY=your_gemini_api_key_here
+```
 
-### Technologies Used
-Flutter: For building the cross-platform user interface.
+🔐 Android Permissions Required
+Add these permissions to your AndroidManifest.xml:
+```xml
+<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+<uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+```
+## 📲 Usage
+Launch the app and select which apps you want to lock.
 
-Kotlin: For implementing Android-specific features like accessibility services and app monitoring.
+Choose your unlock method (Timer / Greenery Image).
 
-Shared Preferences: To save user settings and manage locked apps.
+If a locked app is accessed, the LockScreenActivity (built in Kotlin) will intercept and enforce your chosen restriction.
 
-Image Recognition (Optional): Used for greenery verification to enhance user experience.
+Submit a greenery image — it will be processed via the Gemini API to detect nature elements and validate unlock access.
 
-## Contributing
-We welcome contributions to improve the app! If you'd like to contribute, please fork the repository and submit a pull request with your changes. Make sure to follow the coding standards and write tests for any new features.
+## 🧪 Technologies Used
+ 
+Flutter	: UI/UX Frontend Development
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+Kotlin	: Android-specific logic & Accessibility
 
-For any questions, issues, or feature requests, please feel free to open an issue.
+Gemini API :	AI-powered greenery image verification
+SharedPreferences :	Local app lock data persistence
+
+
+# 📤 Contributing
+
+We welcome contributors to improve Mushin! 🚀
+
+Fork this repository.
+
+Create your feature branch:
+
+```bash
+Copy
+Edit
+git checkout -b feature/YourFeatureName
+Commit your changes:
+```
+```bash
+Copy
+Edit
+git commit -am "Add a new feature"
+Push and create a PR:
+```
+```bash
+Copy
+Edit
+git push origin feature/YourFeatureName
+Please ensure your changes are well-tested and follow the existing code style.
+```
+## 📝 License
+This project is licensed under the MIT License.
+See the LICENSE file for details.
+

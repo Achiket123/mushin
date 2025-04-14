@@ -41,7 +41,6 @@ dependencies:
   camera: ^0.11.1
   donut_chart: ^0.0.1
   installed_apps: ^1.6.0
-  dotenv: ^4.2.0
   flutter_dotenv: ^5.2.1
   hive_flutter: ^1.1.0
   smooth_page_indicator: ^1.2.1

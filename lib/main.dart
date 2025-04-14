@@ -4,7 +4,7 @@ import 'package:control/features/bloc/lock_bloc/lock_bloc.dart';
 import 'package:control/features/pages/camera_page.dart';
 import 'package:control/features/pages/home_page.dart';
 import 'package:control/features/service/show_app_service.dart';
-import 'package:dotenv/dotenv.dart';
+ 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -55,53 +55,66 @@ class _TimerPageState extends State<TimerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Set Lock Timer')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _formattedDateTime(),
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          colors: [
+            Color.fromARGB(255, 0, 71, 224),
+            Color.fromARGB(255, 15, 8, 118),
+          ],
+          center: Alignment.bottomLeft,
+          radius: 1,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            _formattedDateTime(),
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _selectDateTime(context),
-                  child: Text('Select Date & Time'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_selectedDate != null && _selectedTime != null) {
-                      final selectedDateTime = DateTime(
-                        _selectedDate!.year,
-                        _selectedDate!.month,
-                        _selectedDate!.day,
-                        _selectedTime!.hour,
-                        _selectedTime!.minute,
-                      );
-                      for (var i in widget.packageName)
-                        context.read<LockBloc>().add(
-                          LockTimerEvent(i, selectedDateTime),
-                        );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Please select date and time")),
+          ),
+          SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () => _selectDateTime(context),
+                child: Text('Select Date & Time'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_selectedDate != null && _selectedTime != null) {
+                    final selectedDateTime = DateTime(
+                      _selectedDate!.year,
+                      _selectedDate!.month,
+                      _selectedDate!.day,
+                      _selectedTime!.hour,
+                      _selectedTime!.minute,
+                    );
+                    for (var i in widget.packageName) {
+                      context.read<LockBloc>().add(
+                        LockTimerEvent(i, selectedDateTime),
                       );
                     }
-                    debugPrint("Hello");
-                    Navigator.of(context).pop();
-                    SystemNavigator.pop();
-                  },
-                  child: Text("OK"),
-                ),
-              ],
-            ),
-          ],
-        ),
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Please select date and time")),
+                    );
+                  }
+                  debugPrint("Hello");
+                  Navigator.of(context).pop();
+                  SystemNavigator.pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,3 @@
-import 'dart:isolate';
-
 import 'package:app_usage/app_usage.dart';
 import 'package:flutter/material.dart';
 import 'package:installed_apps/app_info.dart';
@@ -7,28 +5,29 @@ import 'package:installed_apps/installed_apps.dart';
 
 class ShowAppService {
   ShowAppService._();
-  static const List<AppInfo> apps = [];
-  static const List<AppUsageInfo> appUsage = [];
+  static List<AppInfo> apps = [];
+  static List<AppUsageInfo> appUsage = [];
 
   static final instance = ShowAppService._();
 
   Future<List<AppInfo>> getAppList() async {
     try {
       List<AppInfo>? appList =
-          (await InstalledApps.getInstalledApps(true, true) ?? []).where((e) {
+          (await InstalledApps.getInstalledApps(false, true)).where((e) {
             if (e.name == 'Mushin') return false;
-            if (e.packageName.contains("youtube"))
+            if (e.packageName.contains("youtube")) {
               return true;
-            else if (e.packageName.contains("instagram"))
-              return true;
-            else if (e.packageName.contains("whatsapp"))
-              return true;
-            else
-              return e.packageName.contains("com.android.") ? false : true;
+            } else if (e.packageName.contains("android.")) {
+              return false;
+            } else if (e.packageName.contains("com.google.")) {
+              return false;
+            }
+
+            return true;
           }).toList();
       debugPrint("$appList");
       appList.isNotEmpty
-          ? appList.sort((a, b) => a.name!.compareTo(b.name!))
+          ? appList.sort((a, b) => a.name.compareTo(b.name))
           : [];
       return appList;
     } catch (e) {
@@ -36,7 +35,7 @@ class ShowAppService {
     }
   }
 
-  Future getAppUsage() async {
+  Future<List<AppUsageInfo>> getAppUsage() async {
     AppUsage appUsage = AppUsage();
     try {
       final DateTime now = DateTime.now();

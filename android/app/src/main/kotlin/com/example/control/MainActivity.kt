@@ -166,11 +166,24 @@ if (packages != null && duration != null) {
             
             val sharedPreferences = getSharedPreferences("AppLockPrefs", Context.MODE_PRIVATE)
             val editor = sharedPreferences.edit()
+
             val lockedApps = sharedPreferences.getStringSet("locked_apps", emptySet())?.toMutableSet() ?: mutableSetOf()
             
-
+            val currentTime = System.currentTimeMillis()
+            val iterator = lockedApps.iterator()
+            while (iterator.hasNext()) {
+                val packageName = iterator.next()
+                val lockUntil = sharedPreferences.getLong("lock_until_$packageName", 0L)
+                if (lockUntil > 0L && currentTime > lockUntil) {
+                    iterator.remove()
+                    editor.remove("lock_until_$packageName")
+                }
+            }
+            editor.putStringSet("locked_apps", lockedApps)
+            editor.apply()  
+           val newList =  sharedPreferences.getStringSet("locked_apps", emptySet())?.toMutableSet() ?: mutableSetOf()
             
-            result.success(lockedApps.toList())
+            result.success(newList.toList())
         } catch (e: Exception) {
             println("Error retrieving lock status: ${e.message}");
             result.error("ERROR", "Failed to get lock status", e.localizedMessage)

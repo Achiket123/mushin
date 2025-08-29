@@ -10,7 +10,7 @@ class ApiService {
   Future<bool> uploadPhoto(String filePath) async {
     final apiKey = dotenv.get("API_KEY");
     final url = Uri.parse(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=$apiKey',
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey',
     );
 
     try {
@@ -25,7 +25,7 @@ class ApiService {
             "parts": [
               {
                 "text":
-                    "Give me in one word answer to the question. Can you see Greenery and nature in the image? just yes and no.",
+                    "Give me in one word answer to the question. Can you see Greenery and nature in the image? just yes and no. no extra symbols/extra characters/mistakes.",
               },
               {
                 "inlineData": {
